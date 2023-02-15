@@ -145,10 +145,15 @@ public class LexerTest {
         for (Token t : lex.getTokens()) {
             if (t.getToken().equals("ERROR")) {
                 numOfOperators++;
+
+        int numOfErrors = 0;
+        for(Token t: lex.getTokens()){
+            if(t.getToken().equals("ERROR")){
+                numOfErrors++;
             }
         }
 
-        Assertions.assertTrue(0 < numOfOperators);
+        Assertions.assertTrue(0 < numOfErrors);
 
     }
 
