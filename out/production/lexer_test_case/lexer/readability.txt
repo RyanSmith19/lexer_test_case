@@ -1,0 +1,10 @@
+The major problem with the source code is that Lexer.java at line 190 has a sequence of if else 
+statements mimicking a switch case. While this is functional, it makes it very difficult to read what is 
+going due to the clutter caused by all the return and if-else statements being packed together. 
+Additionally, the splitline method has a cyclomatic complexity of well over 10 which is a major 
+readability problem as it can be difficult to sift through what all the conditionals lead to. This could be 
+solved by splitting the functionality of splitline across multiple methods. Furthermore, the state table is 
+not terribly clear or readable in the way it is currently formatted, but that may be unavoidable in this 
+case. Though, the state table goes past the standard table terminal screen width which is not a major 
+readability problem, but can definitely hinder the understanding of readers. Also, of course, the two 
+classes could use 
