@@ -112,7 +112,7 @@ public class LexerTest {
     }
 
     @Test
-    public void test_04_errors_on_none_code_input(){
+    public void test_04_errors_on_non_code_input(){
         StringBuilder inputText = new StringBuilder();
         Scanner scanner = new Scanner("./war_and_peace.txt");
 
@@ -127,14 +127,14 @@ public class LexerTest {
         Lexer lex = new Lexer(inputText.toString());
         lex.run();
 
-        int numOfOperators = 0;
+        int numOfErrors = 0;
         for(Token t: lex.getTokens()){
             if(t.getToken().equals("ERROR")){
-                numOfOperators++;
+                numOfErrors++;
             }
         }
 
-        Assertions.assertTrue(0 < numOfOperators);
+        Assertions.assertTrue(0 < numOfErrors);
 
     }
 
