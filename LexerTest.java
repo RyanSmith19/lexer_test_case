@@ -1,4 +1,4 @@
-package us.calpoly.csc309;
+package lexer;
 
 import org.junit.jupiter.api.*;
 
@@ -84,7 +84,7 @@ public class LexerTest {
         Scanner scanner;
 
         try {
-            scanner = new Scanner(new File("src/main/java/us/calpoly/csc309/Token.java"));
+            scanner = new Scanner(new File("./Token.java"));
             while (scanner.hasNextLine()) {
                 inputText.append(scanner.nextLine());
             }
@@ -130,7 +130,7 @@ public class LexerTest {
         StringBuilder inputText = new StringBuilder();
 
         try {
-            Scanner scanner = new Scanner(new File("src/test/resources/war_and_peace.txt"));
+            Scanner scanner = new Scanner(new File("./war_and_peace.txt"));
             for (int i = 0; i < 100; i++) {
                 inputText.append(scanner.nextLine());
             }
@@ -141,20 +141,20 @@ public class LexerTest {
         Lexer lex = new Lexer(inputText.toString());
         lex.run();
 
-        int numOfOperators = 0;
         for (Token t : lex.getTokens()) {
             if (t.getToken().equals("ERROR")) {
-                numOfOperators++;
 
-        int numOfErrors = 0;
-        for(Token t: lex.getTokens()){
-            if(t.getToken().equals("ERROR")){
-                numOfErrors++;
+                int numOfErrors = 0;
+                for (Token t2 : lex.getTokens()) {
+                    if (t2.getToken().equals("ERROR")) {
+                        numOfErrors++;
+                    }
+                }
+
+                Assertions.assertTrue(0 < numOfErrors);
+
             }
         }
-
-        Assertions.assertTrue(0 < numOfErrors);
-
     }
 
     @Test
