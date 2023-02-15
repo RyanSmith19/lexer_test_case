@@ -2,6 +2,8 @@ package lexer;
 
 import org.junit.jupiter.api.*;
 
+import java.io.File;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class LexerTest {
@@ -11,7 +13,7 @@ public class LexerTest {
      *
      */
     @Test
-    public void  test_01_declaration(){
+    public void test_01_variable_declaration(){
         String inputText = "int x = 0;";
         Lexer lex = new Lexer(inputText);
         lex.run();
@@ -27,19 +29,159 @@ public class LexerTest {
         }
     }
 
-    public void  test_02_declaration(){
-        String inputText = "int x = 0;";
+    @Test
+    public void  test_02_class_declaration(){
+        String inputText = """
+                public class A extends B {
+                 String s = "'this is crazy' said stan";
+                 public method(){
+                }
+                }""";
         Lexer lex = new Lexer(inputText);
         lex.run();
         Vector<Token> expected_tokens = new Vector<>();
-        expected_tokens.add(new Token("int", "KEYWORD"));
-        expected_tokens.add(new Token("x", "IDENTIFIER"));
+        expected_tokens.add(new Token("public", "IDENTIFIER"));
+        expected_tokens.add(new Token("class", "IDENTIFIER"));
+        expected_tokens.add(new Token("A", "IDENTIFIER"));
+        expected_tokens.add(new Token("extends", "IDENTIFIER"));
+        expected_tokens.add(new Token("B", "IDENTIFIER"));
+        expected_tokens.add(new Token("{", "DELIMITER"));
+        expected_tokens.add(new Token("String", "IDENTIFIER"));
+        expected_tokens.add(new Token("s", "IDENTIFIER"));
         expected_tokens.add(new Token("=", "OPERATOR"));
-        expected_tokens.add(new Token("0", "INTEGER"));
+        expected_tokens.add(new Token("\"'this is crazy' said stan\"", "STRING"));
         expected_tokens.add(new Token(";", "DELIMITER"));
+        expected_tokens.add(new Token("public", "IDENTIFIER"));
+        expected_tokens.add(new Token("method", "IDENTIFIER"));
+        expected_tokens.add(new Token("(", "DELIMITER"));
+        expected_tokens.add(new Token(")", "DELIMITER"));
+        expected_tokens.add(new Token("{", "DELIMITER"));
+        expected_tokens.add(new Token("}", "DELIMITER"));
+        expected_tokens.add(new Token("}", "DELIMITER"));
+
         for(int i = 0; i < expected_tokens.size(); i++){
             Assertions.assertEquals(expected_tokens.get(i).getToken(), lex.getTokens().get(i).getToken());
             Assertions.assertEquals(expected_tokens.get(i).getWord(), lex.getTokens().get(i).getWord());
         }
+    }
+
+    @Test
+    public void test_03_Lex_Token(){
+        StringBuilder inputText = new StringBuilder();
+        Scanner scanner = new Scanner("./Token.java");
+
+        try{
+            scanner = new Scanner(new File("./Token.java"));
+        }catch(Exception ignored){}
+
+
+        while(scanner.hasNextLine()){
+            inputText.append(scanner.nextLine());
+        }
+        Lexer lex = new Lexer(inputText.toString());
+        lex.run();
+
+        int correctTokens = 0;
+        for(Token t: lex.getTokens()){
+            if(t.getWord().equals("Token") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+
+            if(t.getWord().equals("getWord") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+
+            if(t.getWord().equals("getToken") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+
+            if(t.getWord().equals("setToken") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+
+            if(t.getWord().equals("getLine") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+
+            if(t.getWord().equals("setLine") && t.getToken().equals("IDENTIFIER")){
+                correctTokens++;
+            }
+        }
+
+        Assertions.assertEquals(8, correctTokens);
+    }
+
+    @Test
+    public void test_04_errors_on_none_code_input(){
+        StringBuilder inputText = new StringBuilder();
+        Scanner scanner = new Scanner("./war_and_peace.txt");
+
+        try{
+            scanner = new Scanner(new File("./war_and_peace.txt"));
+        }catch(Exception ignored){}
+
+
+        for(int i = 0; i < 100; i ++){
+            inputText.append(scanner.nextLine());
+        }
+        Lexer lex = new Lexer(inputText.toString());
+        lex.run();
+
+        int numOfOperators = 0;
+        for(Token t: lex.getTokens()){
+            if(t.getToken().equals("ERROR")){
+                numOfOperators++;
+            }
+        }
+
+        Assertions.assertTrue(0 < numOfOperators);
+
+    }
+
+    @Test
+    public void test_05_declarations_and_ifs(){
+        String inputText = """
+                int incorrect = ~;
+                char c = 'A';
+                float f = 0.9493;
+                double d = 9.9983;
+                String s = "q";
+                int octal = 012;
+                int hex = 0x0474
+                byte b = 0b101
+                short sh = 0b111
+                String s2 = ""'";
+                if(octal == hex){
+                    System.out.println("true!");
+                }
+                if(octal != hex){
+                    System.out.println("false!");
+                }
+                """;
+
+        Lexer lex = new Lexer(inputText);
+        lex.run();
+        Vector<Token> expected_tokens = new Vector<>();
+        expected_tokens.add(new Token("incorrect", "IDENTIFIER"));
+        expected_tokens.add(new Token("c", "IDENTIFIER"));
+        expected_tokens.add(new Token("f", "IDENTIFIER"));
+        expected_tokens.add(new Token("d", "IDENTIFIER"));
+        expected_tokens.add(new Token("s", "IDENTIFIER"));
+        expected_tokens.add(new Token("b", "IDENTIFIER"));
+        expected_tokens.add(new Token("sh", "IDENTIFIER"));
+        expected_tokens.add(new Token("s2", "IDENTIFIER"));
+        expected_tokens.add(new Token("==", "OPERATOR"));
+        expected_tokens.add(new Token("!=", "OPERATOR"));
+
+        int tokenMatch = 0;
+        for(Token t: lex.getTokens()){
+            for(Token t2: expected_tokens){
+                if(t.getToken().equals(t2.getToken()) && t.getWord().equals(t2.getWord())){
+                    tokenMatch++;
+                }
+            }
+        }
+
+        Assertions.assertEquals(10, tokenMatch);
     }
 }
